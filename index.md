@@ -1,37 +1,91 @@
-## Welcome to GitHub Pages
+/* The IR sensor array is to be in the following order:
+       L2    L1    M    R1    R2
+       
+  L1, M and R1 determine the track. L2 and R2 is used for extra precision in very sharp turns.
+  
+  I have assumed that the IR sensor shows low when detetcting a black surface.
+  
+  The bot should be placed such that M comes over the black line.
+*/        
 
-You can use the [editor on GitHub](https://github.com/19ANDY/line_follower-/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+int L2=8;
+int L1=7;
+int M=5;
+int R1=4;
+int R2=3;
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+int lMotFwd=11;
+int rMotFwd=10;
+int lMotRev=9;
+int rMotRev=6;
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+void setup()
+{
+ pinMode(L2,INPUT);
+ pinMode(L1,INPUT);
+ pinMode(M,INPUT);
+ pinMode(R2,INPUT);
+ pinMode(R1,INPUT);
+ pinMode(lMotFwd,OUTPUT);
+ pinMode(rMotFwd,OUTPUT);
+ pinMode(lMotRev,OUTPUT);
+ pinMode(rMotRev,OUTPUT);
 
-```markdown
-Syntax highlighted code block
+ digitalWrite(lMotFwd,LOW);
+ digitalWrite(rMotFwd,LOW);
+ digitalWrite(lMotRev,LOW);
+ digitalWrite(rMotRev,LOW);
+}
 
-# Header 1
-## Header 2
-### Header 3
+void loop()
+{
 
-- Bulleted
-- List
+ //Move forward
+if((digitalRead(L1)==HIGH)&&(digitalRead(L2)==HIGH)
+   &&(digitalRead(R1)==HIGH)&&(digitalRead(R2)==HIGH))
+ {
+   digitalWrite(lMotFwd,HIGH);
+   digitalWrite(rMotFwd,HIGH);
+   digitalWrite(lMotRev,LOW);
+   digitalWrite(rMotRev,LOW);
+ }
 
-1. Numbered
-2. List
+ //Less sharp left turn
+else if(digitalRead(L1)==LOW && digitalRead(L2)==HIGH)
+ {
+   analogWrite(lMotFwd,LOW);
+   digitalWrite(rMotFwd,160);
+   digitalWrite(lMotRev,LOW);
+   digitalWrite(rMotRev,LOW);
+ }
 
-**Bold** and _Italic_ and `Code` text
+ //Very sharp left turn to be taken slowly
+ else if(digitalRead(L1)==LOW && digitalRead(L2)==LOW)
+ {
+   analogWrite(lMotFwd,LOW);
+   digitalWrite(rMotFwd,80);
+   digitalWrite(lMotRev,LOW);
+   digitalWrite(rMotRev,LOW);
+ }
 
-[Link](url) and ![Image](src)
-```
+ //Less sharp right turn
+ else if(digitalRead(R1)==LOW && digitalRead(L2)==HIGH)
+ {
+   analogWrite(lMotFwd,160);
+   digitalWrite(rMotFwd,LOW);
+   digitalWrite(lMotRev,LOW);
+   digitalWrite(rMotRev,LOW);
+ }
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/19ANDY/line_follower-/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+ //Very sharp right turn to be taken slowly
+ else if(digitalRead(R1)==LOW && digitalRead(R2)==LOW)
+ {
+   analogWrite(lMotFwd,80);
+   digitalWrite(rMotFwd,LOW);
+   digitalWrite(lMotRev,LOW);
+   digitalWrite(rMotRev,LOW);
+ }
+ 
+ delay(5);
+}
